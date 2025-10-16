@@ -50,7 +50,7 @@ The **original QC Ultra** tool lacks an **accessible English version** and an **
 ## 🪄 Getting Started
 
 1. Make sure you already have the **Original QC Ultra** installed.  
-2. Download the latest **KIWI Loader** from the **[Download](https://drive.google.com/file/d/1FZ_P7TfS7WsftaQ1FEtvzkozM7ZkhwQp/view)** page.  
+2. Download the latest **KIWI Loader** from the **[Releases](https://drive.google.com/file/d/1FZ_P7TfS7WsftaQ1FEtvzkozM7ZkhwQp/view)** page.  
 3. Run **`QC Ultra - KIWI.exe`**.  
 4. Enter your **key** and press **Start**.  
 5. Use **Quick Optimize** or **Load Scripts** to begin optimizing.
