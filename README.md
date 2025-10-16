@@ -1,5 +1,5 @@
-<img width="492" height="373" alt="image" src="https://github.com/user-attachments/assets/5714dd8e-6de4-4112-af45-9492daf2bc8d" />
-<img width="508" height="360" alt="image" src="https://github.com/user-attachments/assets/0676de5b-998b-4cef-9921-d92024159e80" />
+<img width="993" height="360" alt="image" src="https://github.com/user-attachments/assets/69e13d10-a3b0-41b2-9811-e7ca91e38648" />
+
 
 🚀 QC Ultra - KIWI Loader
 
