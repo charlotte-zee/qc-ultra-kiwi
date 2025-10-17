@@ -7,19 +7,20 @@
 </p>
 
 
-# 🚀 QC Ultra – KIWI Loader
+# 🚀 QC Ultra – KIWI Loader ## 🌟 Overview
 
-**QC Ultra – KIWI** is an **extension loader** designed to make using **Original QC Ultra** easier — especially for new users or those who prefer an English-friendly interface.  
-It is **not a standalone injector or replacement** for QC Ultra; instead, it works **alongside your existing QC Ultra installation** to simplify setup, script management, and daily use.
+**QC Ultra – KIWI** is an **extension loader** designed to make using **Original QC Ultra** easier — especially for new users or those who prefer an English friendly interface.  
+It is **not a standalone injector or replacement** for QC Ultra; instead, it works **alongside your existing QC Ultra Loader** to simplify setup, script management, and daily use.
 
----
+The **original QC Ultra Loader** tool lacks an **accessible English version** and an **easy setup process**, making it difficult for new users to get started.  
 
-## 🌟 Overview
+**QC Ultra – KIWI** was created to fix that — providing a **lightweight English interface loader** with all the **core functions** users need to load and setup QC Ultra efficiently.
+
 
 The **KIWI Loader** focuses on **accessibility and convenience**, keeping all essential QC Ultra functionality in one place.  
 It’s built for users who want a **clean, beginner-friendly interface** without losing **advanced control options**.
 
-While it features a light, anime inspired look, the design prioritizes **practicality and smooth performance**.
+The Kiwi Loader comes with anime inspired look, the design prioritizes **practicality and smooth performance**.
 
 ---
 
@@ -45,13 +46,6 @@ While it features a light, anime inspired look, the design prioritizes **practic
 
 ---
 
-## 💬 Why KIWI Exists
-
-The **original QC Ultra Loader** tool lacks an **accessible English version** and an **easy setup process**, making it difficult for new users to get started.  
-
-**QC Ultra – KIWI** was created to fix that — providing a **lightweight English interface loader** with all the **core functions** users need to load and setup QC Ultra efficiently.
-
----
 
 ## 🪄 Getting Started
 
