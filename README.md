@@ -7,7 +7,7 @@
 </p>
 
 
-# 🚀 QC Ultra – KIWI Loader ## 🌟 Overview
+# 🚀 QC Ultra – KIWI Loader 🌟 Overview
 
 **QC Ultra – KIWI** is an **extension loader** designed to make using **Original QC Ultra** easier — especially for new users or those who prefer an English friendly interface.  
 It is **not a standalone injector or replacement** for QC Ultra; instead, it works **alongside your existing QC Ultra Loader** to simplify setup, script management, and daily use.
