@@ -82,9 +82,4 @@ Need help setting up or running **KIWI Loader**?
 
 ### ✨ QC Ultra – KIWI Loader
 
-> A **clean**, **simple**, and **English-friendly** extension for QC Ultra — built for everyone who wants a smoother, faster experience.
-
-
-QC Ultra - KIWI Loader
-
-A clean, simple, and English-friendly extension for QC Ultra  built for everyone who wants a smoother experience.
+> A **clean**, **simple**, and **English-friendly** extension for QC Ultra built for everyone who wants a smoother, faster experience.
