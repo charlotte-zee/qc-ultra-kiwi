@@ -19,13 +19,13 @@ It is **not a standalone injector or replacement** for QC Ultra; instead, it wor
 The **KIWI Loader** focuses on **accessibility and convenience**, keeping all essential QC Ultra functionality in one place.  
 It’s built for users who want a **clean, beginner-friendly interface** without losing **advanced control options**.
 
-While it features a light, anime-inspired look, the design prioritizes **practicality and smooth performance**.
+While it features a light, anime inspired look, the design prioritizes **practicality and smooth performance**.
 
 ---
 
 ## ⚙️ Core Features
 
-- ✅ **Requires Original QC Ultra** – KIWI acts as an add-on loader; you must already have the official QC Ultra installed.  
+- ✅ **Requires Original QC Ultra** – KIWI acts as an add-on loader; you must already have the official QC Ultra EXE.  
 - 🔑 **Key System Support** – Secure login with key authentication and quick recovery options.  
 - ⚙️ **One-Click Setup** – Automatically configure QC Ultra and prepare script directories.  
 - 📂 **Script Loader** – Load and manage QC scripts easily without navigating folders.  
@@ -66,7 +66,7 @@ The **original QC Ultra Loader** tool lacks an **accessible English version** an
 ## 🧰 Requirements
 
 - 🪟 **Windows 10 or 11**  
-- 💾 **Original QC Ultra installation**  
+- 💾 **Original QC Ultra EXE**  
 - ⚙️ **.NET Framework** (latest version recommended) – *Optional*  
 - 🌐 **Internet connection** (for key validation and updates)
 
@@ -82,4 +82,4 @@ Need help setting up or running **KIWI Loader**?
 
 ### ✨ QC Ultra – KIWI Loader
 
-> A **clean**, **simple**, and **English-friendly** extension for QC Ultra built for everyone who wants a smoother, faster experience.
+> A **clean**, **simple**, and **English friendly** extension for QC Ultra built for everyone who wants a smoother, faster experience.
