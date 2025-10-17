@@ -1,12 +1,3 @@
-<img width="993" height="360" alt="image" src="https://github.com/user-attachments/assets/69e13d10-a3b0-41b2-9811-e7ca91e38648" />
-<p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/.NET-Framework-blue?style=flat-square"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Windows-10%2F11-lightgrey?style=flat-square"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Language-C%23-green?style=flat-square"></a>
-  <a href="#"><img src="https://img.shields.io/github/license/username/repo?style=flat-square"></a>
-</p>
-
-
 # 🚀 QC Ultra – KIWI Loader 🌟 Overview
 
 **QC Ultra – KIWI** is an **extension loader** designed to make using **Original QC Ultra** easier — especially for new users or those who prefer an English friendly interface.  
@@ -74,6 +65,13 @@ Need help setting up or running **KIWI Loader**?
 - 💬 Use the **Contact** button inside the loader for direct assistance.
 
 ---
+<img width="993" height="360" alt="image" src="https://github.com/user-attachments/assets/69e13d10-a3b0-41b2-9811-e7ca91e38648" />
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/badge/.NET-Framework-blue?style=flat-square"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Windows-10%2F11-lightgrey?style=flat-square"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Language-C%23-green?style=flat-square"></a>
+  <a href="#"><img src="https://img.shields.io/github/license/username/repo?style=flat-square"></a>
+</p>
 
 ### ✨ QC Ultra – KIWI Loader
 
