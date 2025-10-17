@@ -49,7 +49,7 @@ While it features a light, anime-inspired look, the design prioritizes **practic
 
 The **original QC Ultra** tool lacks an **accessible English version** and an **easy setup process**, making it difficult for new users to get started.  
 
-**QC Ultra – KIWI** was created to fix that — providing a **lightweight interface** with all the **core functions** users need to operate QC Ultra efficiently.
+**QC Ultra – KIWI** was created to fix that — providing a **lightweight English interface** with all the **core functions** users need to load and setup QC Ultra efficiently.
 
 ---
 
