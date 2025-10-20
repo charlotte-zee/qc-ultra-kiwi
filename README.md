@@ -1,4 +1,4 @@
-**QC Ultra – KIWI** is an **extension loader** designed to make using **Original QC Ultra** easier — especially for new users or those who prefer an English friendly interface.  
+QC Ultra – KIWI is an **extension loader** designed to make using **Original QC Ultra** easier — especially for new users or those who prefer an English friendly interface.  
 
 <img width="993" height="360" alt="image" src="https://github.com/user-attachments/assets/69e13d10-a3b0-41b2-9811-e7ca91e38648" />
 
