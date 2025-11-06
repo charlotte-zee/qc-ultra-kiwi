@@ -67,6 +67,33 @@ namespace LoginForm
             // Style helper applied to both buttons
             StylePrimaryButton(btnSignIn);
             StylePrimaryButton(btnMoreOptions);
+            // Create a custom X close button (top-right)
+            var btnClose = new Button
+            {
+                Name = "btnClose",
+                Text = "✕",
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                Size = new Size(36, 30),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(40, 40, 40),
+                ForeColor = Color.White,
+                Cursor = Cursors.Hand,                               // clickable look [14]
+                TabStop = false,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right       // stick to top-right [9]
+            };
+            btnClose.FlatAppearance.BorderSize = 0;
+            btnClose.FlatAppearance.MouseOverBackColor = Color.FromArgb(65, 65, 65);
+            btnClose.FlatAppearance.MouseDownBackColor = Color.FromArgb(90, 90, 90);
+
+            // Place with a small margin from top-right corner
+            Controls.Add(btnClose);
+            void PositionClose() =>
+                btnClose.Location = new Point(ClientSize.Width - btnClose.Width - 10, 10);
+            PositionClose();
+            this.Resize += (_, __) => PositionClose();
+
+            // Close on click
+            btnClose.Click += (_, __) => this.Close();              // close window [1]
 
 
             // Blue style for the Optimize button (Designer Name must be "optimize")
@@ -151,7 +178,7 @@ namespace LoginForm
             string keyPath = GetKeyFilePath();
             if (!File.Exists(keyPath))
             {
-                MessageBox.Show("key.txt not found in the app folder.", "Not Found",
+                MessageBox.Show("Key not found!.", "Not Found",
                     MessageBoxButtons.OK, MessageBoxIcon.Information); // guard
                 return;
             }
@@ -165,7 +192,7 @@ namespace LoginForm
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Failed to read key.txt: " + ex.Message, "File Error",
+                MessageBox.Show("Failed to read Key: " + ex.Message, "File Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error); // file error [22]
             }
         }
@@ -191,7 +218,7 @@ namespace LoginForm
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Failed to save key.txt: " + ex.Message, "File Error",
+                MessageBox.Show("Failed to save Key: " + ex.Message, "File Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -212,7 +239,7 @@ namespace LoginForm
 
             if (!File.Exists(qcExe))
             {
-                MessageBox.Show("QC.exe not found in the app folder.", "Error",
+                MessageBox.Show("QC.exe not found. Please goto More Options and load QC.exe", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -317,16 +344,135 @@ namespace LoginForm
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
-            // Optional tray icon
             _tray = new NotifyIcon
             {
                 Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath),
                 Visible = true,
                 BalloonTipTitle = "QC ULTRA - KIWI"
             };
+
+            string localVersion = "1.2"; // this is the loader’s current version
+            string versionFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "qc_version.txt");
+            string versionUrl = "https://gist.githubusercontent.com/charlotte-zee/34760525136eb2894be68bc044ced017/raw/qc_version?cacheBust=" + Guid.NewGuid();
+
+            // Read stored version (last downloaded)
+            string storedVersion = File.Exists(versionFile) ? File.ReadAllText(versionFile).Trim() : "0.0";
+
+            try
+            {
+                using var client = new HttpClient();
+                string remoteVersion = (await client.GetStringAsync(versionUrl)).Trim();
+                bool hasUpdate = !string.Equals(remoteVersion, storedVersion, StringComparison.OrdinalIgnoreCase);
+
+                // --- Label setup ---
+                Label lblVersion = new Label
+                {
+                    AutoSize = true,
+                    ForeColor = hasUpdate ? Color.Gold : Color.LightGreen,
+                    BackColor = Color.Transparent,
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                    Text = hasUpdate
+                        ? $" QC - Update Available:  v{storedVersion} ➔ v{remoteVersion}"
+                        : $"QC Version{storedVersion} ( Up to date )",
+                    Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
+                    Location = new Point(10, this.ClientSize.Height - 22),
+                    Visible = false
+                };
+                this.Controls.Add(lblVersion);
+                lblVersion.BringToFront();
+
+                // --- Fade-in animation ---
+                float opacity = 0f;
+                Color baseColor = lblVersion.ForeColor;
+                System.Windows.Forms.Timer fadeTimer = new System.Windows.Forms.Timer { Interval = 40 };
+
+                fadeTimer.Tick += (s, _) =>
+                {
+                    opacity += 0.08f;
+                    if (opacity >= 1f)
+                    {
+                        opacity = 1f;
+                        fadeTimer.Stop();
+                    }
+
+                    int alpha = (int)(opacity * 255);
+                    lblVersion.ForeColor = Color.FromArgb(alpha, baseColor);
+                    lblVersion.Visible = true;
+                };
+                fadeTimer.Start();
+
+                // --- If update available ---
+                if (hasUpdate)
+                {
+                    Random rnd = new Random();
+                    int ticks = 0;
+                    System.Windows.Forms.Timer flickerTimer = new System.Windows.Forms.Timer { Interval = 70 };
+
+                    flickerTimer.Tick += (s, _) =>
+                    {
+                        ticks++;
+                        int alpha = rnd.Next(120, 255);
+                        lblVersion.ForeColor = Color.FromArgb(alpha, baseColor);
+
+                        if (ticks > 15)
+                        {
+                            lblVersion.ForeColor = baseColor;
+                            flickerTimer.Stop();
+                        }
+                    };
+                    flickerTimer.Start();
+
+                    // 🔔 System Tray Notification (no click events)
+                    _tray.BalloonTipTitle = "Update Available!";
+                    _tray.BalloonTipText = $"QC ULTRA v{remoteVersion} is now available.";
+                    _tray.BalloonTipIcon = ToolTipIcon.Info;
+                    _tray.ShowBalloonTip(6000);
+                }
+                else
+                {
+                    // --- Auto-hide after 10 seconds if up-to-date ---
+                    System.Windows.Forms.Timer hideTimer = new System.Windows.Forms.Timer { Interval = 10000 };
+                    hideTimer.Tick += (s, _) =>
+                    {
+                        hideTimer.Stop();
+                        float fadeOut = 1f;
+                        System.Windows.Forms.Timer fadeOutTimer = new System.Windows.Forms.Timer { Interval = 50 };
+                        fadeOutTimer.Tick += (s2, _) =>
+                        {
+                            fadeOut -= 0.1f;
+                            if (fadeOut <= 0f)
+                            {
+                                fadeOutTimer.Stop();
+                                lblVersion.Visible = false;
+                            }
+                            else
+                            {
+                                int alpha = (int)(fadeOut * 255);
+                                lblVersion.ForeColor = Color.FromArgb(alpha, baseColor);
+                            }
+                        };
+                        fadeOutTimer.Start();
+                    };
+                    hideTimer.Start();
+                }
+
+                // Keep aligned bottom-left
+                this.Resize += (_, __) =>
+                {
+                    lblVersion.Location = new Point(10, this.ClientSize.Height - 22);
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Version check failed: " + ex.Message);
+            }
         }
+
+
+
+
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
@@ -349,17 +495,22 @@ namespace LoginForm
             // Remember current state (Normal/Maximized/Minimized)
             var prevState = this.WindowState;
 
-            // Minimize Form1 while options are open (optional)
-            this.WindowState = FormWindowState.Minimized;
+            // Keep Form1 visible (optional: remove this line if you don’t want it minimized)
+            // this.WindowState = FormWindowState.Minimized;
 
             using (var dlg = new OptionsForm())
             {
-                dlg.StartPosition = FormStartPosition.CenterScreen; // center on screen
+                dlg.StartPosition = FormStartPosition.Manual; // we'll set the location ourselves
                 dlg.ShowInTaskbar = false;
                 dlg.ShowIcon = false;
 
-                // Show modally (no need to pass owner if centering on screen)
-                dlg.ShowDialog();
+                // Position OptionsForm to the LEFT side of the main form
+                dlg.Location = new Point(
+                    this.Left - dlg.Width,   // place immediately to the left
+                    this.Top                 // align vertically with Form1
+                );
+
+                dlg.ShowDialog(this); // make Form1 the owner so it stays on top
             }
 
             // After dialog closes: restore and foreground Form1
@@ -368,6 +519,8 @@ namespace LoginForm
             this.Activate();
             this.BringToFront();
         }
+
+
 
 
         private static void SafeDeleteFile(string path)
@@ -486,10 +639,13 @@ namespace LoginForm
 
             Cursor = Cursors.Default;
             MessageBox.Show(
-                "Optimization complete.\n• Power plan attempted: High performance\n• Temp folders cleaned\n• Prefetch cleared (skipped locked items)\n• Standby memory purged (if RAMMap64.exe present)",
+                "Optimization complete.\n• High performance mode set\n• Temp folders cleaned\n• Standby Memory purged (if RAMMap64.exe is present)",
                 "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);                      // user feedback [1]
         }
 
+        private void btnMoreOptions_Click_1(object sender, EventArgs e)
+        {
 
+        }
     }
 }

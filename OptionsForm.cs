@@ -276,7 +276,7 @@ namespace LoginForm
             // 
             // update
             // 
-            update.Location = new Point(12, 51);
+            update.Location = new Point(12, 54);
             update.Name = "update";
             update.Size = new Size(138, 23);
             update.TabIndex = 0;
@@ -286,7 +286,7 @@ namespace LoginForm
             // 
             // setup
             // 
-            setup.Location = new Point(12, 93);
+            setup.Location = new Point(12, 98);
             setup.Name = "setup";
             setup.Size = new Size(138, 23);
             setup.TabIndex = 1;
@@ -296,7 +296,7 @@ namespace LoginForm
             // 
             // scripts
             // 
-            scripts.Location = new Point(12, 222);
+            scripts.Location = new Point(12, 225);
             scripts.Name = "scripts";
             scripts.Size = new Size(138, 23);
             scripts.TabIndex = 3;
@@ -318,7 +318,7 @@ namespace LoginForm
             // 
             // selectAndBackupQC
             // 
-            selectAndBackupQC.Location = new Point(12, 181);
+            selectAndBackupQC.Location = new Point(12, 185);
             selectAndBackupQC.Name = "selectAndBackupQC";
             selectAndBackupQC.Size = new Size(138, 23);
             selectAndBackupQC.TabIndex = 0;
@@ -327,7 +327,7 @@ namespace LoginForm
             // 
             // button1
             // 
-            button1.Location = new Point(426, 12);
+            button1.Location = new Point(242, 293);
             button1.Name = "button1";
             button1.Size = new Size(59, 25);
             button1.TabIndex = 8;
@@ -337,7 +337,7 @@ namespace LoginForm
             // 
             // revertSetup
             // 
-            revertSetup.Location = new Point(12, 135);
+            revertSetup.Location = new Point(12, 142);
             revertSetup.Name = "revertSetup";
             revertSetup.Size = new Size(138, 23);
             revertSetup.TabIndex = 9;
@@ -347,7 +347,7 @@ namespace LoginForm
             // 
             // downloadCustomScripts
             // 
-            downloadCustomScripts.Location = new Point(12, 266);
+            downloadCustomScripts.Location = new Point(12, 269);
             downloadCustomScripts.Name = "downloadCustomScripts";
             downloadCustomScripts.Size = new Size(138, 49);
             downloadCustomScripts.TabIndex = 10;
@@ -392,18 +392,24 @@ namespace LoginForm
         // SILENT DOWNLOAD with tweaks: auto-open + balloon
         private async void update_Click(object? sender, EventArgs e)
         {
-            // ✅ Live Gist URL (no commit hash)
+            // ✅ Gist URLs
             string gistUrl = "https://gist.githubusercontent.com/charlotte-zee/03978c26481355e493836f9ff006ecf7/raw/qc_url";
-            gistUrl += "?cacheBust=" + Guid.NewGuid(); // 🧠 prevent CDN cache
+            string versionUrl = "https://gist.githubusercontent.com/charlotte-zee/34760525136eb2894be68bc044ced017/raw/qc_version";
+
+            // Add cache-busting to always get the latest
+            gistUrl += "?cacheBust=" + Guid.NewGuid();
+            versionUrl += "?cacheBust=" + Guid.NewGuid();
 
             string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
             string file = Path.Combine(desktop, "QC.rar");
+            string versionFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "qc_version.txt");
+
 
             try
             {
                 using var client = new HttpClient();
 
-                // 1️⃣ Fetch the latest Google Drive link from your gist
+                // 1️⃣ Fetch latest Google Drive link
                 string driveLink = (await client.GetStringAsync(gistUrl)).Trim();
 
                 if (string.IsNullOrWhiteSpace(driveLink))
@@ -412,11 +418,11 @@ namespace LoginForm
                     return;
                 }
 
-                // 2️⃣ Download the file
+                // 2️⃣ Download the QC.rar file
                 var data = await client.GetByteArrayAsync(driveLink);
                 await File.WriteAllBytesAsync(file, data);
 
-                // 3️⃣ Show balloon notification (quick visual feedback)
+                // 3️⃣ Tray balloon: Download complete
                 var tray = new NotifyIcon
                 {
                     Visible = true,
@@ -437,10 +443,9 @@ namespace LoginForm
                 };
                 timer.Start();
 
-                // 4️⃣ Wait 2 seconds before showing reminder
+                // 4️⃣ Wait before showing password reminder
                 await Task.Delay(2000);
 
-                // 5️⃣ Show reminder first (user clicks OK)
                 MessageBox.Show(
                     "✅ QC.rar downloaded successfully!\n\n🔒 Password: kiwi\n\nSaved on your Desktop.",
                     "Download Complete",
@@ -448,7 +453,23 @@ namespace LoginForm
                     MessageBoxIcon.Information
                 );
 
-                // 6️⃣ Then open Explorer to show the file
+                // 5️⃣ Fetch and store latest version number
+                try
+                {
+                    string remoteVersion = (await client.GetStringAsync(versionUrl)).Trim();
+                    if (!string.IsNullOrWhiteSpace(remoteVersion))
+                    {
+                        await File.WriteAllTextAsync(versionFile, remoteVersion);
+                        Console.WriteLine($"Stored new version: {remoteVersion}");
+                    }
+                }
+                catch (Exception verEx)
+                {
+                    MessageBox.Show("Could not save version info:\n" + verEx.Message, "Version Save Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                // 6️⃣ Finally, open Explorer
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = "explorer.exe",
