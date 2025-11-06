@@ -51,7 +51,7 @@ The Kiwi Loader comes with anime inspired look, the design prioritizes **practic
 ## 🪄 Getting Started
 
 1. Make sure you already have the **Original QC Ultra** installed.  
-2. Download the latest **KIWI Loader** from the **[Releases](https://github.com/charlotte-zee/qc-ultra-kiwi/releases/tag/qc-ultra)** page.  
+2. Download the latest **KIWI Loader** from the **[Releases](https://github.com/charlotte-zee/qc-ultra-kiwi/releases)** page.  
 3. Run **`QC Ultra - KIWI.exe`**.  
 4. Enter your **key** and press **Start**.  
 5. Use **Quick Optimize** or **Load Scripts** to begin optimizing.
