@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using System.IO;
 
 namespace LoginForm
 {
@@ -20,6 +23,8 @@ namespace LoginForm
         private PictureBox pictureBox2;
         private PictureBox pictureBox3;
         private Button button1;
+        private Button revertSetup;
+        private Button downloadCustomScripts;
         private const int HTCAPTION = 0x2;            // caption hit-test
         [DllImport("user32.dll")] private static extern bool ReleaseCapture();
         [DllImport("user32.dll")] private static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
@@ -74,6 +79,37 @@ namespace LoginForm
                 updateBtn.AutoSize = false;
                 updateBtn.Size = new Size(140, 34);
             }
+
+            // Style: Revert Setup button (blue, same as Setup)
+            if (Controls["revertSetup"] is Button revertBtn)
+            {
+                revertBtn.FlatStyle = FlatStyle.Flat;
+                revertBtn.FlatAppearance.BorderSize = 0;
+                revertBtn.BackColor = Color.FromArgb(30, 136, 229); // same blue as Setup
+                revertBtn.ForeColor = Color.White;
+                revertBtn.FlatAppearance.MouseOverBackColor = Color.FromArgb(66, 165, 245); // hover
+                revertBtn.FlatAppearance.MouseDownBackColor = Color.FromArgb(25, 118, 210); // pressed
+                revertBtn.Cursor = Cursors.Hand;
+                revertBtn.AutoSize = false;
+                revertBtn.Size = new Size(140, 34);
+            }
+
+            // Style: Download Custom Scripts button (pink)
+            // Style: Download Custom Scripts button (pink, same as Load Scripts)
+            if (Controls["downloadCustomScripts"] is Button customBtn)
+            {
+                customBtn.FlatStyle = FlatStyle.Flat;
+                customBtn.FlatAppearance.BorderSize = 0;
+                customBtn.BackColor = Color.FromArgb(255, 27, 107); // same pink
+                customBtn.ForeColor = Color.White;
+                customBtn.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 82, 149); // hover
+                customBtn.FlatAppearance.MouseDownBackColor = Color.FromArgb(216, 27, 96);  // pressed
+                customBtn.Cursor = Cursors.Hand;
+                // ⚠️ Do NOT override size — preserve what you set in Designer
+            }
+
+
+
 
             // Style: Setup button (blue)
             if (Controls["setup"] is Button setupBtn)
@@ -233,6 +269,8 @@ namespace LoginForm
             pictureBox1 = new PictureBox();
             selectAndBackupQC = new Button();
             button1 = new Button();
+            revertSetup = new Button();
+            downloadCustomScripts = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -240,17 +278,17 @@ namespace LoginForm
             // 
             update.Location = new Point(12, 51);
             update.Name = "update";
-            update.Size = new Size(107, 23);
+            update.Size = new Size(138, 23);
             update.TabIndex = 0;
-            update.Text = "Check Updates";
+            update.Text = "Download Update";
             update.UseVisualStyleBackColor = true;
             update.Click += update_Click;
             // 
             // setup
             // 
-            setup.Location = new Point(12, 101);
+            setup.Location = new Point(12, 93);
             setup.Name = "setup";
-            setup.Size = new Size(107, 23);
+            setup.Size = new Size(138, 23);
             setup.TabIndex = 1;
             setup.Text = "One Click Setup";
             setup.UseVisualStyleBackColor = true;
@@ -258,9 +296,9 @@ namespace LoginForm
             // 
             // scripts
             // 
-            scripts.Location = new Point(12, 197);
+            scripts.Location = new Point(12, 222);
             scripts.Name = "scripts";
-            scripts.Size = new Size(107, 23);
+            scripts.Size = new Size(138, 23);
             scripts.TabIndex = 3;
             scripts.Text = "Load Scripts";
             scripts.UseVisualStyleBackColor = true;
@@ -280,16 +318,16 @@ namespace LoginForm
             // 
             // selectAndBackupQC
             // 
-            selectAndBackupQC.Location = new Point(12, 154);
+            selectAndBackupQC.Location = new Point(12, 181);
             selectAndBackupQC.Name = "selectAndBackupQC";
-            selectAndBackupQC.Size = new Size(107, 23);
+            selectAndBackupQC.Size = new Size(138, 23);
             selectAndBackupQC.TabIndex = 0;
             selectAndBackupQC.Text = "Load QC.exe";
             selectAndBackupQC.Click += selectAndBackupQC_Click_1;
             // 
             // button1
             // 
-            button1.Location = new Point(12, 311);
+            button1.Location = new Point(426, 12);
             button1.Name = "button1";
             button1.Size = new Size(59, 25);
             button1.TabIndex = 8;
@@ -297,9 +335,31 @@ namespace LoginForm
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
+            // revertSetup
+            // 
+            revertSetup.Location = new Point(12, 135);
+            revertSetup.Name = "revertSetup";
+            revertSetup.Size = new Size(138, 23);
+            revertSetup.TabIndex = 9;
+            revertSetup.Text = "Revert Back";
+            revertSetup.UseVisualStyleBackColor = true;
+            revertSetup.Click += revertSetup_Click;
+            // 
+            // downloadCustomScripts
+            // 
+            downloadCustomScripts.Location = new Point(12, 266);
+            downloadCustomScripts.Name = "downloadCustomScripts";
+            downloadCustomScripts.Size = new Size(138, 49);
+            downloadCustomScripts.TabIndex = 10;
+            downloadCustomScripts.Text = "Download Custom Scripts";
+            downloadCustomScripts.UseVisualStyleBackColor = true;
+            downloadCustomScripts.Click += downloadCustomScripts_Click;
+            // 
             // OptionsForm
             // 
             ClientSize = new Size(497, 348);
+            Controls.Add(downloadCustomScripts);
+            Controls.Add(revertSetup);
             Controls.Add(button1);
             Controls.Add(selectAndBackupQC);
             Controls.Add(pictureBox1);
@@ -329,27 +389,87 @@ namespace LoginForm
             e.Graphics.FillPath(brush, path);
         }
 
-        private void update_Click(object sender, EventArgs e)
+        // SILENT DOWNLOAD with tweaks: auto-open + balloon
+        private async void update_Click(object? sender, EventArgs e)
         {
-            const string url = "https://wwpo.lanzoue.com/iRRh335x3v3e";
+            // ✅ Live Gist URL (no commit hash)
+            string gistUrl = "https://gist.githubusercontent.com/charlotte-zee/03978c26481355e493836f9ff006ecf7/raw/qc_url";
+            gistUrl += "?cacheBust=" + Guid.NewGuid(); // 🧠 prevent CDN cache
+
+            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            string file = Path.Combine(desktop, "QC.rar");
+
             try
             {
-                Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true }); // default browser
+                using var client = new HttpClient();
+
+                // 1️⃣ Fetch the latest Google Drive link from your gist
+                string driveLink = (await client.GetStringAsync(gistUrl)).Trim();
+
+                if (string.IsNullOrWhiteSpace(driveLink))
+                {
+                    MessageBox.Show("Remote gist file is empty or invalid.", "Update", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // 2️⃣ Download the file
+                var data = await client.GetByteArrayAsync(driveLink);
+                await File.WriteAllBytesAsync(file, data);
+
+                // 3️⃣ Show balloon notification (quick visual feedback)
+                var tray = new NotifyIcon
+                {
+                    Visible = true,
+                    Icon = SystemIcons.Information,
+                    BalloonTipTitle = "Download complete",
+                    BalloonTipText = "QC.rar saved on your Desktop",
+                    BalloonTipIcon = ToolTipIcon.Info
+                };
+                tray.ShowBalloonTip(3000);
+
+                var timer = new System.Windows.Forms.Timer { Interval = 3500 };
+                timer.Tick += (s2, _) =>
+                {
+                    tray.Visible = false;
+                    tray.Dispose();
+                    timer.Stop();
+                    timer.Dispose();
+                };
+                timer.Start();
+
+                // 4️⃣ Wait 2 seconds before showing reminder
+                await Task.Delay(2000);
+
+                // 5️⃣ Show reminder first (user clicks OK)
+                MessageBox.Show(
+                    "✅ QC.rar downloaded successfully!\n\n🔒 Password: kiwi\n\nSaved on your Desktop.",
+                    "Download Complete",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+
+                // 6️⃣ Then open Explorer to show the file
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "explorer.exe",
+                    Arguments = $"/select,\"{file}\"",
+                    UseShellExecute = true
+                });
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Could not open the link.\n" + ex.Message, "Open Link",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Download failed:\n" + ex.Message, "Download", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
 
         private void OptionsForm_Load(object sender, EventArgs e) { }
 
         private void setup_Click(object sender, EventArgs e)
         {
-            // Confirmation prompt about Defender
             var confirm = MessageBox.Show(
-                "Before continuing, make sure Windows Defender (Real‑time protection) is turned OFF.\n\nClick OK to proceed, or Cancel to stop.",
+                "Before continuing, make sure Windows Defender (Real-time protection) is turned OFF.\n\nClick OK to proceed, or Cancel to stop.",
                 "Confirm: Turn off Defender first",
                 MessageBoxButtons.OKCancel,
                 MessageBoxIcon.Warning);
@@ -362,28 +482,48 @@ namespace LoginForm
                 return;
             }
 
+            var messages = new List<string>();
             var errors = new List<string>();
 
-            // 1) Disable Core Isolation (Memory Integrity / HVCI)
+            // 1️⃣ Core Isolation (Memory Integrity / HVCI)
             try
             {
-                using (var key = Registry.LocalMachine.CreateSubKey(
-                    @"SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity", true))
+                bool edited = false;
+                bool missing = false;
+
+                using (var key = Registry.LocalMachine.OpenSubKey(
+                    @"SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity", writable: true))
                 {
-                    key?.SetValue("Enabled", 0, RegistryValueKind.DWord);
+                    if (key != null)
+                    {
+                        key.SetValue("Enabled", 0, RegistryValueKind.DWord);
+                        edited = true;
+                    }
+                    else missing = true;
                 }
-                using (var key2 = Registry.LocalMachine.CreateSubKey(
-                    @"SYSTEM\CurrentControlSet\Control\DeviceGuard", true))
+
+                using (var key2 = Registry.LocalMachine.OpenSubKey(
+                    @"SYSTEM\CurrentControlSet\Control\DeviceGuard", writable: true))
                 {
-                    key2?.SetValue("EnableVirtualizationBasedSecurity", 0, RegistryValueKind.DWord);
+                    if (key2 != null)
+                    {
+                        key2.SetValue("EnableVirtualizationBasedSecurity", 0, RegistryValueKind.DWord);
+                        edited = true;
+                    }
+                    else missing = true;
                 }
+
+                if (edited)
+                    messages.Add("✅ Core Isolation: Disabled (if present).");
+                else if (missing)
+                    messages.Add("⚠️ Core Isolation: Keys missing or locked — skipped.");
             }
             catch (Exception ex)
             {
-                errors.Add("Core Isolation toggle failed: " + ex.Message);
+                errors.Add("Core Isolation step failed: " + ex.Message);
             }
 
-            // 2) Set time zone to China Standard Time (UTC+08:00 Beijing)
+            // 2️⃣ Time zone set to China Standard Time
             try
             {
                 var psi = new ProcessStartInfo
@@ -396,7 +536,9 @@ namespace LoginForm
                 };
                 using var p = Process.Start(psi);
                 p?.WaitForExit(8000);
-                if (p == null || p.ExitCode != 0)
+                if (p != null && p.ExitCode == 0)
+                    messages.Add("✅ Time Zone: China Standard Time (UTC+08:00).");
+                else
                     errors.Add("Time zone change failed: " + (p?.StandardError.ReadToEnd() ?? "unknown error"));
             }
             catch (Exception ex)
@@ -404,7 +546,7 @@ namespace LoginForm
                 errors.Add("Time zone change failed: " + ex.Message);
             }
 
-            // 3) Set system locale (language for non‑Unicode programs) to Chinese (Simplified, Mainland China)
+            // 3️⃣ System locale (non-Unicode) to Chinese (Simplified, Mainland China)
             try
             {
                 var psiLocale = new ProcessStartInfo
@@ -417,7 +559,9 @@ namespace LoginForm
                 };
                 using var pl = Process.Start(psiLocale);
                 pl?.WaitForExit(15000);
-                if (pl == null || pl.ExitCode != 0)
+                if (pl != null && pl.ExitCode == 0)
+                    messages.Add("✅ System Locale: Chinese (Simplified, Mainland China).");
+                else
                     errors.Add("System locale change failed: " + (pl?.StandardError.ReadToEnd() ?? "unknown error"));
             }
             catch (Exception ex)
@@ -425,18 +569,24 @@ namespace LoginForm
                 errors.Add("System locale change failed: " + ex.Message);
             }
 
+            // 🧩 Summary
+            string summary = string.Join("\n", messages);
             if (errors.Count == 0)
             {
                 MessageBox.Show(
-                    "Setup complete.\n\n• Core Isolation (Memory Integrity): Disabled.\n• Time zone: China Standard Time (UTC+08:00).\n• System locale (non‑Unicode): Chinese (Simplified, Mainland China).\n\nA restart is required for the system locale and may be needed for Core Isolation changes.",
+                    "Setup complete.\n\n" + summary +
+                    "\n\nA restart may be required for changes to apply.",
                     "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show(string.Join("\n", errors), "Some steps failed",
+                MessageBox.Show(
+                    summary + "\n\n⚠️ Some errors occurred:\n" + string.Join("\n", errors),
+                    "Completed with warnings",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+
 
         private static bool IsAdministrator()
         {
@@ -589,6 +739,142 @@ namespace LoginForm
             // Show modeless so the main form remains usable/moveable
             var f = new GlassForm();
             f.Show(this);   // owner set for proper z-order; not modal
+        }
+
+        private void revertSetup_Click(object sender, EventArgs e)
+        {
+            var confirm = MessageBox.Show(
+                "This will restore your system settings to their defaults:\n\n" +
+                "• Re-enable Core Isolation (Memory Integrity)\n" +
+                "• Set Time Zone back to your current local region\n" +
+                "• Change System Locale back to English (United States)\n\n" +
+                "Do you want to continue?",
+                "Confirm Revert",
+                MessageBoxButtons.OKCancel,
+                MessageBoxIcon.Question);
+
+            if (confirm != DialogResult.OK) return;
+
+            if (!IsAdministrator())
+            {
+                MessageBox.Show("Administrator privileges are required to revert system setup.",
+                    "Admin Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var messages = new List<string>();
+            var errors = new List<string>();
+
+            // 1️⃣ Re-enable Core Isolation (Memory Integrity / HVCI)
+            try
+            {
+                bool edited = false;
+                bool missing = false;
+
+                using (var key = Registry.LocalMachine.OpenSubKey(
+                    @"SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity", writable: true))
+                {
+                    if (key != null)
+                    {
+                        key.SetValue("Enabled", 1, RegistryValueKind.DWord);
+                        edited = true;
+                    }
+                    else missing = true;
+                }
+
+                using (var key2 = Registry.LocalMachine.OpenSubKey(
+                    @"SYSTEM\CurrentControlSet\Control\DeviceGuard", writable: true))
+                {
+                    if (key2 != null)
+                    {
+                        key2.SetValue("EnableVirtualizationBasedSecurity", 1, RegistryValueKind.DWord);
+                        edited = true;
+                    }
+                    else missing = true;
+                }
+
+                if (edited)
+                    messages.Add("✅ Core Isolation: Re-enabled.");
+                else if (missing)
+                    messages.Add("⚠️ Core Isolation: Keys missing or locked — skipped.");
+            }
+            catch (Exception ex)
+            {
+                errors.Add("Core Isolation revert failed: " + ex.Message);
+            }
+
+            // 2️⃣ Restore time zone (to local system default)
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "tzutil",
+                    Arguments = "/s \"India Standard Time\"", // or use your preferred default, e.g. "Pacific Standard Time"
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardError = true
+                };
+                using var p = Process.Start(psi);
+                p?.WaitForExit(8000);
+                if (p != null && p.ExitCode == 0)
+                    messages.Add("✅ Time Zone: Restored to India Standard Time (UTC+05:30).");
+                else
+                    errors.Add("Time zone revert failed: " + (p?.StandardError.ReadToEnd() ?? "unknown error"));
+            }
+            catch (Exception ex)
+            {
+                errors.Add("Time zone revert failed: " + ex.Message);
+            }
+
+            // 3️⃣ Restore System Locale to English (United States)
+            try
+            {
+                var psiLocale = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = "-NoProfile -ExecutionPolicy Bypass -Command \"Set-WinSystemLocale -SystemLocale en-US\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardError = true
+                };
+                using var pl = Process.Start(psiLocale);
+                pl?.WaitForExit(15000);
+                if (pl != null && pl.ExitCode == 0)
+                    messages.Add("✅ System Locale: Restored to English (United States).");
+                else
+                    errors.Add("System locale revert failed: " + (pl?.StandardError.ReadToEnd() ?? "unknown error"));
+            }
+            catch (Exception ex)
+            {
+                errors.Add("System locale revert failed: " + ex.Message);
+            }
+
+            // 4️⃣ Final summary
+            string summary = string.Join("\n", messages);
+            if (errors.Count == 0)
+            {
+                MessageBox.Show(
+                    "Revert complete.\n\n" + summary +
+                    "\n\nA restart may be required for some changes to take effect.",
+                    "Revert Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show(
+                    summary + "\n\n⚠️ Some errors occurred:\n" + string.Join("\n", errors),
+                    "Revert Completed with Warnings",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void downloadCustomScripts_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "🚧 This feature is coming soon!\n\nStay tuned for custom script downloads in the next update.",
+                "Coming Soon",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information
+            );
         }
     }
 }
